@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star War1</title>
+    <style>
+      #head {
+        width: 100vw;
+        margin: auto;
+      }
+      #searchBox {
+        width: 300px;
+        margin: auto;
+        padding: 5px 10px;
+        border: 1px solid black;
+        border-radius: 10px;
+        text-align: center;
+      }
+      #searchBox input {
+        border: none;
+        font-size: 1.3rem;
+        outline: none;
+      }
+      #searchBox i {
+        color: #fff;
+        background-color: yellow;
+        border-radius: 10px;
+      }
+      #showSearchResult {
+        width: 40vw;
+        padding: 10px;
+        border-radius: 10px;
+        background-color: #333;
+        color: #fff;
+        margin: 3px auto;
+        display: none;
+        text-align: center;
+      }
+      #showSearchResult > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 5px auto 10px;
+      }
+      #showSearchResult > div > div > h4 {
+        padding: 0;
+        margin: 0;
+      }
+      #showSearchResult > div > div > h4:hover {
+        color: yellow;
+      }
+      #showSearchResult > div > div > p {
+        font-size: 0.7rem;
+      }
+    </style>
+    <script
+      src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"
+      data-auto-a11y="true"
+    ></script>
+  </head>
+  <body>
+    <div id="head">
+      <div id="searchBox">
+        <input
+          type="text"
+          placeholder="Search"
+          oninput="throttleFunction(showData, 2000)"
+        />
+        <i
+          class="fas fa-search fa-2x"
+          style="color: #fff; background-color: yellow"
+        ></i>
+      </div>
+    </div>
+    <div id="showSearchResult"></div>
+  </body>
+</html>
+<script>
+  let showSearchResult = document.getElementById("showSearchResult");
+  let timer_id;
+
+  async function getData() {
+    let keyword = document.getElementsByTagName("input")[0].value;
+    let response = await fetch(
+      `https://swapi.dev/api/people/?search=${keyword}`
+    );
+    let { results } = await response.json();
+    /* console.log(results); */
+    return results;
+  }
+  async function showData() {
+    showSearchResult.innerHTML = "";
+    let characters = await getData();
+    console.log(characters);
+    if (characters.length == 0) {
+      showSearchResult.innerHTML = `<h2>Nothing Found!</h2>`;
+    } else {
+      for (let ele of characters) {
+        let div = document.createElement("div");
+        div.innerHTML = `<div><h4>${ele.name}</h4><p>${ele.birth_year}</p></div><div>${ele.gender}</div>`;
+        showSearchResult.appendChild(div);
+      }
+    }
+  }
+
+  function throttleFunction(func, delay) {
+    showSearchResult.style.display = "block";
+    if (timer_id) {
+      return;
+    }
+    timer_id = setTimeout(() => {
+      func();
+      timer_id = null;
+    }, delay);
+  }
+</script>

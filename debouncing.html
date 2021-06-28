@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #searchResults {
+        width: 200px;
+        height: 400px;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid black;
+      }
+      #searchResults div {
+        width: 100%;
+      }
+      #searchResults div p {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <input
+      type="text"
+      placeholder="Search"
+      oninput="throttleFunction(main, 2000)"
+    />
+
+    <div id="searchResults"></div>
+  </body>
+</html>
+<script>
+  let searchResultDiv = document.getElementById("searchResults");
+
+  let timer_id;
+
+  async function getData() {
+    let keyword = document.getElementsByTagName("input")[0].value;
+    let response = await fetch(
+      `http://www.omdbapi.com/?s=${keyword}&apikey=3b615a71`
+    );
+    let data = await response.json();
+    return data;
+  }
+
+  function showResults(movies) {
+    searchResultDiv.innerHTML = null;
+    console.log("movies", movies);
+    for (let ele of movies) {
+      let div = document.createElement("div");
+      let p = document.createElement("p");
+      p.textContent = ele.Title;
+      let image = document.createElement("img");
+      image.src = ele.Poster;
+      div.append(image, p);
+      searchResultDiv.appendChild(div);
+    }
+  }
+
+  async function main() {
+    let { Search } = await getData();
+    showResults(Search);
+  }
+
+  function throttleFunction(func, delay) {
+    if (timer_id) {
+      return;
+    }
+    timer_id = setTimeout(() => {
+      func();
+      timer_id = null;
+    }, delay);
+  }
+</script>
