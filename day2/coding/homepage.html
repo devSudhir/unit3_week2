@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        font-size: 1.1rem;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      a {
+        text-decoration: none;
+      }
+      h1 {
+        text-align: center;
+        color: violet;
+      }
+      #search {
+        width: 500px;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: auto;
+        padding: 5px 10px;
+      }
+      #search input {
+        padding: 10px 80px;
+        border: none;
+        outline: none;
+      }
+      #search button {
+        padding: 10px;
+        background-color: #bbb;
+        border: none;
+      }
+      #searchData {
+        width: 60vw;
+        padding: 20px;
+        margin-right: auto;
+        padding: 20px;
+      }
+      #searchData p {
+        margin: 0.5rem;
+      }
+      #searchData div:nth-child(n + 2) {
+        margin-bottom: 1.5rem;
+        box-shadow: 3px 3px 10px;
+      }
+      #questionDiv a,
+      #relatedDiv a {
+        color: #333;
+        padding: 5px;
+      }
+      #questionDiv a {
+        display: block;
+      }
+      #relatedDiv {
+        padding: 20px 10px 10px;
+      }
+      #relatedDiv a {
+        border: 1px solid aqua;
+        border-radius: 10px;
+        margin: 5px 10px;
+        display: inline-block;
+      }
+      #show2DataDivs {
+        width: 90vw;
+        margin: auto;
+        display: flex;
+      }
+    </style>
+    <script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"></script>
+  </head>
+  <body>
+    <h1>You are in homepage</h1>
+    <div id="search">
+      <i class="fab fa-google 2x"></i>
+      <input type="text" placeholder="Search" id="userInput" />
+      <button type="submit" onclick="showSearchResult()">
+        <i class="fas fa-search 2x"></i>
+      </button>
+    </div>
+    <div id="show2DataDivs">
+      <div id="searchData"></div>
+      <div id="overview"></div>
+    </div>
+  </body>
+</html>
+<script>
+  let searchDataDiv = document.getElementById("searchData");
+  async function getData() {
+    let userInput = document.getElementById("userInput").value;
+    let response = await fetch(
+      `http://api.serpstack.com/search?access_key=5714538f9bcef4aefd9fc17601b2056f&query=${userInput}`
+    );
+    let data = await response.json();
+    return data;
+  }
+  async function showSearchResult() {
+    searchDataDiv.innerHTML = null;
+    let data = await getData();
+    console.log(data);
+    searchDataDiv.innerHTML = `<p>About ${data.search_information.total_results} results (${data.search_information.time_taken_displayed} seconds) </p>`;
+    let topDiv = document.createElement("div");
+    topDiv.innerHTML = `<a href = ${data.knowledge_graph.source.url}>${data.knowledge_graph.source.url}</a>
+                        <h3>${data.knowledge_graph.title}</h3>
+                        <p>${data.knowledge_graph.description}</p>`;
+    searchDataDiv.appendChild(topDiv);
+    for (ele of data.knowledge_graph.known_attributes) {
+      let known_attribute = document.createElement("p");
+      known_attribute.innerHTML = `${ele.name}${ele.value}`;
+      searchDataDiv.appendChild(known_attribute);
+    }
+    for (let ele of data.organic_results) {
+      let div = document.createElement("div");
+      div.innerHTML = `<a href=${ele.displayed_url}>${ele.displayed_url}</a>
+                        <p>${ele.title}</p>`;
+      searchDataDiv.appendChild(div);
+    }
+    let peopleAsk = document.createElement("h2");
+    peopleAsk.textContent = "People also ask";
+    searchDataDiv.appendChild(peopleAsk);
+    let questionDiv = document.createElement("div");
+    for (let ele of data.related_questions) {
+      let a = document.createElement("a");
+      a.textContent = ele.question;
+      a.href = ele.url;
+      questionDiv.appendChild(a);
+    }
+    searchDataDiv.appendChild(questionDiv);
+    questionDiv.setAttribute("id", "questionDiv");
+
+    let peopleAlsoSearchFor = document.createElement("h2");
+    peopleAlsoSearchFor.textContent = "People also search for";
+    searchDataDiv.appendChild(peopleAlsoSearchFor);
+    let relatedDiv = document.createElement("div");
+    for (ele of data.knowledge_graph.people_also_search_for) {
+      let a = document.createElement("a");
+      a.textContent = ele.name;
+      a.href = ele.link;
+      relatedDiv.appendChild(a);
+    }
+    relatedDiv.setAttribute("id", "relatedDiv");
+    searchDataDiv.appendChild(relatedDiv);
+  }
+</script>
