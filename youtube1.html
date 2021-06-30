@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Videos of Youtube</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      }
+      body {
+        background-color: #f9f9f9;
+      }
+      nav {
+        background-color: #fff;
+        padding: 20px;
+        max-width: 100vw;
+        display: grid;
+        grid-template-columns: auto auto auto auto;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+      }
+      #hamAndLogo,
+      #searchBox,
+      #icons {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+        grid-gap: 1rem;
+      }
+      #searchBox {
+        grid-column: 2/4;
+        
+      }
+      #searchInput{
+        width: 125%;
+        grid-column: 1/3;
+        border:1px solid black;
+        display: flex;
+        justify-content: space-between;
+      }
+      #searchBox div>button{
+        padding: 0 20px;
+      }
+      #voiceSearch{
+        border: none;
+      }
+      #searchInput input{
+        padding: 7px 10px;
+        border:none;
+        outline: none;
+      }
+      #icons {
+        grid-template-columns: auto auto auto auto;
+      }
+      #showVideo {
+        display: grid;
+        grid-template-columns: auto;
+        grid-gap: 20px;
+      }
+      #showVideo > div {
+        width: 50vw;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-basis: 50%;
+        margin: auto;
+      }
+      #showVideo div iframe {
+      /*   width: 100%; */
+        display: inline-block;
+        border-radius: 10px;
+        margin: 20px;
+      }
+      /* #showVideo div div h3 {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      }
+      #showVideo div div p {
+        margin: 0;
+        font-weight: 600;
+        color: rgb(73, 56, 56);
+      } */
+      #searchResults{
+        width: 30vw;
+        padding: 10px;
+        background-color: #fff;
+        text-align: center;
+        margin: auto;
+        display: none;
+      }
+    </style>
+    <script
+      src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"
+      data-auto-a11y="true"
+    ></script>
+  </head>
+  <body>
+    <nav>
+      <div id="hamAndLogo">
+        <div>
+          <i class="fas fa-bars"></i>
+        </div>
+        <div>
+          <i class="fab fa-youtube fa-2x" style="color: red"></i>
+        </div>
+        <h2>YouTube<sup>IN</h2></span>
+      </div>
+      <div id="searchBox">
+        <div id="searchInput">
+          <input type="text" placeholder="Search" oninput="showSearchData()" id="input"/>
+          <button type="submit" onclick="showData()">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+        <button id="voiceSearch" onclick="">
+          <i class="fas fa-microphone" style="color: gray;background: #fff;"></i>
+        </button>
+      </div>
+
+      <div id="icons">
+        <i class="fas fa-upload"></i>
+        <i class="fas fa-bell"></i>
+        <i class="fas fa-th"></i>
+        <i class="fas fa-user-tie fa-2x"></i>
+      </div>
+    </nav>
+    <div id="searchResults"></div>
+    <main>
+      <div id="showVideo"></div>
+    </main>
+  </body>
+</html>
+<script>
+  let searchResults = document.getElementById("searchResults");
+  let showVideo = document.getElementById("showVideo");
+
+
+  async function getData(keyword){
+    let response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}&type=video&maxResults=20&key=AIzaSyAGz_9IcbYbb1EpU3HcPi2MYaQjvvJ86pA`);
+    let {items} = await response.json();
+    console.log(items);
+    return items;
+    
+  }
+  async function showData(){
+    showVideo.innerHTML = null;
+    searchResults.style.display="none";
+    let keyword = document.getElementById("input").value;
+    let items = await getData(keyword);
+    for (let ele of items) {
+      let div = document.createElement("div");
+      div.innerHTML = `
+      <iframe width="300" height="200" src="https://www.youtube.com/embed/${ele.id.videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div>
+      <h3>${ele.snippet.title}</h3>
+      <p>${ele.snippet.channelTitle}</p>
+      <p>${ele.snippet.publishedAt}</p>
+      </div>
+      `;
+      showVideo.appendChild(div);
+    }
+  }
+  async function showSearchData(){
+    searchResults.innerHTML = null;
+    searchResults.style.display="block";
+    let keyword = document.getElementById("input").value;
+    let items = await getData(keyword);
+    for (let ele of items) {
+      let p = document.createElement("p");
+      p.textContent = ele.snippet.title;
+      searchResults.appendChild(p);
+    }
+
+  }
+  getData();
+</script>
