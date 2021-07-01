@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      nav {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+      }
+      #searchDiv {
+        grid-column: 2/4;
+      }
+      nav a {
+        text-decoration: none;
+        color: #fff;
+        padding: 10px;
+      }
+      nav input {
+        padding: 5px 20px;
+        border-radius: 5px;
+      }
+      nav button {
+        color: #333;
+        background-color: yellowgreen;
+        padding: 5px 10px;
+        border-radius: 10px;
+      }
+      #data {
+        width: 100%;
+        padding: 20px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: repeat(3, 30%);
+        grid-gap: 20px;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+      }
+      #data > div {
+        max-height: 90vh;
+        overflow: auto;
+      }
+      #data h3,
+      #data h4 {
+        margin: 0;
+      }
+      #data img {
+        width: 50%;
+        border: 1px solid #333;
+        border-radius: 10px;
+      }
+      #data h3 {
+        color: green;
+      }
+      #data h4 {
+        color: rgb(148, 9, 62);
+      }
+      #data p {
+        color: #fff;
+        background-color: #333;
+      }
+      #data a {
+        font-size: 1.2rem;
+        color: #fff;
+        text-decoration: none;
+        padding: 5px 10px;
+        background-color: red;
+        border-radius: 10px;
+        font-weight: 600;
+      }
+      #data span {
+        font-weight: 500;
+        color: yellow;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div id="searchDiv">
+        <input type="text" name="name" id="name" placeholder="Search" />
+        <button onclick="getData()" type="submit">Submit</button>
+      </div>
+      <div>
+        <a href="latest.html">Reciepe of the day</a
+        ><a href="latestReciepe.html">latest Reciepe</a>
+      </div>
+    </nav>
+    <div id="data"></div>
+  </body>
+</html>
+<script>
+  async function getData() {
+    let keyword = document.getElementById("name").value;
+    let response = fetch(
+      `https://www.themealdb.com/api/json/v1/1/search.php?s=${keyword}`
+    )
+      .then((response) => {
+        return response.json();
+      })
+      .then((response) => {
+        showData(response);
+      })
+      .catch((err) => {
+        console.log("ERROR", err);
+      });
+  }
+  async function showData(res) {
+    let data = await res;
+    let dataDiv = document.getElementById("data");
+    dataDiv.innerHTML = null;
+    console.log(data);
+    for (d of data.meals) {
+      let div = document.createElement("div");
+      div.innerHTML = `<img src=${d.strMealThumb}>
+                        <h3>Name: ${d.strMeal}</h3>
+                        <h4>Category: ${d.strCategory}</h4>
+                        <p><span>Instruction: </span>${d.strInstructions}</p>
+                        <a href=${d.strYoutube}>Watch on youtube</a>`;
+      dataDiv.appendChild(div);
+      console.log(d);
+    }
+  }
+</script>
+
+<!-- <script>
+  async function getData() {
+    let response = fetch(
+      `https://www.themealdb.com/api/json/v1/1/search.php?s=chicken`
+    )
+      .then((response) => {
+        return response.json();
+      })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log("ERROR", err);
+      });
+  }
+  getData();
+</script> -->
+<!-- <script type="module">
+  import { getData, showData } from "./scripts/returnData.js";
+</script>
+<script>
+  //import { getData, showData } from "./scripts/returnData.js";
+  function showDataByName(e) {
+    e.preventDefault();
+    let name = document.getElementById("name").value;
+    let getElectronics_data = getData(
+      `https://www.themealdb.com/api/json/v1/1/search.php?s=${name}`
+    );
+    getElectronics_data.then((res) => {
+      showData(res, data);
+    });
+  }
+</script> -->
